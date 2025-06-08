@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育与职业路径图</title>
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f7; /* Changed to a softer background color */
+            overflow: hidden;
+        }
+
+        .chart-container {
+            width: 90%;
+            max-width: 1200px;
+            height: 700px;
+            position: relative;
+            background-color: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            z-index: 0;
+        }
+
+        /* Updated level styles for better spacing */
+        .level {
+            position: absolute;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            min-height: 60px;
+            z-index: 4;
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        /* Updated Zhongzhuan building styles */
+        .level-zhongzhuan {
+            width: 500px;
+            height: 250px;
+            bottom: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #fff;
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            display: block;
+            overflow: hidden;
+            z-index: 3;
+        }
+
+        .zhongzhuan-body {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 8px;
+            padding: 15px;
+            height: calc(100% - 50px);
+            overflow-y: auto;
+        }
+
+        /* Updated avatar styles */
+        .avatar-svg {
+            width: 30px;
+            height: 30px;
+            margin: 2px;
+            vertical-align: middle;
+            opacity: 0;
+            transform: translateY(10px) scale(0.9);
+            transition: opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            flex-shrink: 0;
+            border: 1px solid #eee;
+            border-radius: 6px;
+        }
+
+        /* Updated flow lines */
+        .flow-line {
+            position: absolute;
+            border: 2px dashed #bbb;
+            z-index: 2;
+            opacity: 0.6;
+        }
+
+        /* Updated button style */
+        #user-flow-button {
+            padding: 12px 24px;
+            font-size: 1.1em;
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+            transition: all 0.3s ease;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+        }
+
+        #user-flow-button:hover {
+            background-color: #005bb5;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.3);
+        }
+
+        #user-flow-button:active {
+            background-color: #003f7f;
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+        }
+
+        /* --- Remove old funnel styles --- */
+        /* .funnel-main { display: none; } */
+        /* .channel { display: none; } */
+
+        .level-bachelor {
+            width: 180px;
+            height: 100px;
+            top: 150px;
+            left: 20%;
+            transform: translateX(-50%);
+            background-color: #fff;
+            border: 2px dashed #ccc; /* Dashed border as in image */
+            justify-content: flex-start; /* Align text to top-left */
+            align-items: flex-start;
+            padding-top: 15px;
+            padding-left: 15px;
+        }
+        .level-zhuanke {
+            width: 180px;
+            height: 100px;
+            top: 150px;
+            right: 20%;
+            transform: translateX(50%);
+            background-color: #fff;
+            border: 2px dashed #ccc; /* Dashed border as in image */
+            justify-content: flex-start; /* Align text to top-left */
+            align-items: flex-start;
+            padding-top: 15px;
+            padding-left: 15px;
+        }
+        .level-zhigao {
+            width: 180px;
+            height: 100px;
+            bottom: 120px;
+            left: 10%;
+            transform: translateX(-50%);
+            background-color: #fff;
+            border: 2px dashed #ccc; /* Dashed border as in image */
+            justify-content: flex-start; /* Align text to top-left */
+            align-items: flex-start;
+            padding-top: 15px;
+            padding-left: 15px;
+        }
+        .level-shehui {
+            width: 180px;
+            height: 100px;
+            bottom: 120px;
+            right: 10%;
+            transform: translateX(50%);
+            background-color: #fff;
+            border: 2px dashed #ccc; /* Dashed border as in image */
+            justify-content: flex-start; /* Align text to top-left */
+            align-items: flex-start;
+            padding-top: 15px;
+            padding-left: 15px;
+        }
+
+        .zhongzhuan-roof {
+            width: 100%;
+            height: 50px;
+            background-color: #eee;
+            border-bottom: 2px solid #ccc;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #555;
+            font-size: 1.2em;
+        }
+
+        .zhongzhuan-door {
+            width: 60px;
+            height: 80px;
+            background-color: #8B4513; /* Brown door */
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 5px 5px 0 0;
+            z-index: 4; /* Door on top of body */
+        }
+
+        /* Gaokao (College Entrance Exam) box */
+        .level-gaokao {
+            position: absolute;
+            width: 250px;
+            height: 100px;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.8em;
+            color: #ff7f32; /* Orange color for text */
+            z-index: 5; /* Gaokao box on top */
+        }
+
+        .gaokao-985-211 {
+            position: absolute;
+            bottom: 10px; /* Position at the bottom of Gaokao box */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+            color: #ff7f32; /* Keep orange color for consistency with Gaokao label */
+            white-space: nowrap; /* Prevent text wrapping */
+            text-align: center;
+            width: 100%;
+        }
+
+        .label {
+            /* This will be used inside levels like bachelor, zhuanke etc. */
+            font-weight: bold;
+            color: #555;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            width: 100%;
+            text-align: left;
+        }
+
+        /* SVG Avatar Styles (for landed avatars) */
+        .avatar-svg.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Flowing cartoon figure from entry point */
+        .flowing-figure {
+            position: absolute;
+            width: 35px; /* Adjusted size for flowing characters */
+            height: 35px;
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5; /* Flowing figures should be on top of everything */
+            background-color: transparent; /* No background circle for flowing figures */
+            border-radius: 0; /* No border radius */
+        }
+
+        .flowing-figure svg {
+            width: 100%; /* Make the SVG fill its container */
+            height: 100%;
+        }
+
+        /* Entry Point is now effectively the bottom of the zhongzhuan building */
+        .entry-point {
+            display: none; /* No longer needed as a separate div */
+        }
+
+        /* Walking Characters at the bottom */
+        .walking-characters-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px; /* Space for walking characters */
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* Align to bottom */
+            overflow: hidden;
+            z-index: 2; /* Below zhongzhuan building */
+        }
+
+        .walking-figure {
+            width: 50px;
+            height: 70px; /* Tall enough for character */
+            margin: 0 10px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: walk-horizontal 8s infinite linear; /* Slower horizontal walk */
+        }
+
+        /* Scattered characters (decorative) */
+        .scattered-character {
+            position: absolute;
+            width: 40px;
+            height: 55px;
+            opacity: 0.8;
+            z-index: 1; /* Below other UI elements */
+        }
+        .scattered-character:nth-child(1) { top: 50px; left: 50px; } /* Adjusted for new layout */
+        .scattered-character:nth-child(2) { top: 80px; right: 80px; transform: scaleX(-1); } /* Adjusted for new layout */
+        .scattered-character:nth-child(3) { bottom: 100px; left: 300px; } /* Adjusted for new layout */
+        .scattered-character:nth-child(4) { top: 300px; left: 100px; transform: scaleX(-1); } /* Adjusted for new layout */
+        .scattered-character:nth-child(5) { top: 250px; right: 150px; } /* New scattered character */
+        .scattered-character:nth-child(6) { bottom: 200px; right: 50px; transform: scaleX(-1); } /* New scattered character */
+
+        /* Keyframes for horizontal walking */
+        @keyframes walk-horizontal {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100vw); }
+        }
+
+        /* Dashed lines for flow indication (new elements) */
+        .flow-line-zhongzhuan-to-gaokao {
+            top: 250px; /* Roughly from top of zhongzhuan building */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 50px; /* Connects to Gaokao */
+            background-color: transparent; /* Only dashed border visible */
+            border-top: none;
+            border-left: none;
+            border-right: none;
+        }
+        .flow-line-gaokao-to-bachelor {
+            top: 150px; /* From Gaokao top-left */
+            left: calc(50% - 125px); /* Start from left edge of Gaokao box */
+            width: 80px;
+            height: 2px; /* Horizontal line */
+            transform: rotate(-30deg); /* Increased angle */
+            transform-origin: top left;
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px dashed #bbb;
+            z-index: 2;
+        }
+        .flow-line-gaokao-to-zhuanke {
+            top: 150px; /* From Gaokao top-right */
+            right: calc(50% - 125px); /* Start from right edge of Gaokao box */
+            width: 80px;
+            height: 2px; /* Horizontal line */
+            transform: rotate(30deg); /* Increased angle */
+            transform-origin: top right;
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px dashed #bbb;
+            z-index: 2;
+        }
+        .flow-line-zhongzhuan-to-zhigao {
+            bottom: 120px; /* From zhongzhuan building bottom-left */
+            left: calc(50% - 250px); /* Start from left edge of zhongzhuan building */
+            width: 80px;
+            height: 2px;
+            transform: rotate(-15deg); /* Angle downwards */
+            transform-origin: bottom left;
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px dashed #bbb;
+            z-index: 2;
+        }
+        .flow-line-zhongzhuan-to-shehui {
+            bottom: 120px; /* From zhongzhuan building bottom-right */
+            right: calc(50% - 250px); /* Start from right edge of zhongzhuan building */
+            width: 80px;
+            height: 2px;
+            transform: rotate(15deg); /* Angle downwards */
+            transform-origin: bottom right;
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px dashed #bbb;
+            z-index: 2;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="chart-container">
+        <!-- SVG Definitions (New Cartoon Figures) -->
+        <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <defs>
+                <!-- Standard Avatar (for inside levels) -->
+                <symbol id="avatar" viewBox="0 0 100 100">
+                    <circle cx="50" cy="35" r="30" fill="#ffe0bd"/> <!-- Head -->
+                    <path d="M 20 50 Q 50 20, 80 50 Z" fill="#333"/> <!-- Hair top -->
+                    <path d="M 20 50 L 20 70 A 30 30 0 0 0 80 70 L 80 50 Z" fill="#333"/> <!-- Hair sides/back -->
+                    <circle cx="40" cy="30" r="5" fill="#333"/> <!-- Left Eye -->
+                    <circle cx="60" cy="30" r="5" fill="#333"/> <!-- Right Eye -->
+                    <path d="M 40 45 Q 50 55, 60 45" stroke="#8B4513" stroke-width="3" fill="none"/> <!-- Mouth -->
+                    <!-- Body with random color -->
+                    <rect x="30" y="60" width="40" height="30" class="avatar-body-color" rx="5" ry="5"/> 
+                    <rect x="35" y="85" width="10" height="15" fill="#8B4513"/> <!-- Left leg -->
+                    <rect x="55" y="85" width="10" height="15" fill="#8B4513"/> <!-- Right leg -->
+                </symbol>
+
+                <!-- Flowing/Walking Cartoon Figure (Grey) -->
+                <symbol id="cartoon-figure-grey" viewBox="0 0 100 100">
+                    <circle cx="50" cy="35" r="30" fill="#ffe0bd"/>
+                    <path d="M 20 50 Q 50 20, 80 50 Z" fill="#333"/>
+                    <path d="M 20 50 L 20 70 A 30 30 0 0 0 80 70 L 80 50 Z" fill="#333"/>
+                    <circle cx="40" cy="30" r="5" fill="#333"/>
+                    <circle cx="60" cy="30" r="5" fill="#333"/>
+                    <path d="M 40 45 Q 50 55, 60 45" stroke="#8B4513" stroke-width="3" fill="none"/>
+                    <rect x="30" y="60" width="40" height="30" fill="#6a5acd" rx="5" ry="5"/>
+                    <rect x="35" y="85" width="10" height="15" fill="#8B4513"/>
+                    <rect x="55" y="85" width="10" height="15" fill="#8B4513"/>
+                    <!-- Add a simple suitcase -->
+                    <rect x="70" y="75" width="15" height="20" fill="#8B4513" rx="3" ry="3"/>
+                    <rect x="75" y="73" width="5" height="3" fill="#5A2D0C"/>
+                </symbol>
+
+                <!-- Flowing/Walking Cartoon Figure (Blue for user) -->
+                <symbol id="cartoon-figure-blue" viewBox="0 0 100 100">
+                    <circle cx="50" cy="35" r="30" fill="#ffe0bd"/>
+                    <path d="M 20 50 Q 50 20, 80 50 Z" fill="#333"/>
+                    <path d="M 20 50 L 20 70 A 30 30 0 0 0 80 70 L 80 50 Z" fill="#333"/>
+                    <circle cx="40" cy="30" r="5" fill="#333"/>
+                    <circle cx="60" cy="30" r="5" fill="#333"/>
+                    <path d="M 40 45 Q 50 55, 60 45" stroke="#8B4513" stroke-width="3" fill="none"/>
+                    <rect x="30" y="60" width="40" height="30" fill="#4285F4" rx="5" ry="5"/>
+                    <rect x="35" y="85" width="10" height="15" fill="#8B4513"/>
+                    <rect x="55" y="85" width="10" height="15" fill="#8B4513"/>
+                    <!-- Add a simple suitcase -->
+                    <rect x="70" y="75" width="15" height="20" fill="#4285F4" rx="3" ry="3"/>
+                    <rect x="75" y="73" width="5" height="3" fill="#1A4D8D"/>
+                </symbol>
+            </defs>
+        </svg>
+
+        <button id="user-flow-button">看看我会流向哪里</button>
+
+        <!-- Gaokao (College Entrance Exam) box -->
+        <div class="level level-gaokao">
+            高考
+            <div class="gaokao-985-211">
+                985 211
+            </div>
+        </div>
+
+        <!-- Levels -->
+        <div class="level level-bachelor">
+            <span class="label">本科</span>
+        </div>
+
+        <div class="level level-zhuanke">
+            <span class="label">专科</span>
+        </div>
+
+        <div class="level level-zhigao">
+            <span class="label">职高 技校</span>
+        </div>
+
+        <div class="level level-shehui">
+            <span class="label">社会 就业</span>
+        </div>
+
+        <!-- Zhongzhuan (Middle School Exam) Building -->
+        <div class="level level-zhongzhuan">
+            <div class="zhongzhuan-roof">
+                中考
+            </div>
+            <div class="zhongzhuan-body">
+                <!-- Avatars will fill here -->
+            </div>
+            <div class="zhongzhuan-door"></div>
+        </div>
+
+        <!-- Walking Characters at the bottom -->
+        <div class="walking-characters-bottom">
+            <!-- These will be generated by JS or just duplicated SVGs -->
+            <svg class="walking-figure" viewBox="0 0 100 100"><use xlink:href="#cartoon-figure-grey"></use></svg>
+            <svg class="walking-figure" viewBox="0 0 100 100"><use xlink:href="#cartoon-figure-grey"></use></svg>
+            <svg class="walking-figure" viewBox="0 0 100 100"><use xlink:href="#cartoon-figure-grey"></use></svg>
+            <svg class="walking-figure" viewBox="0 0 100 100"><use xlink:href="#cartoon-figure-grey"></use></svg>
+            <svg class="walking-figure" viewBox="0 0 100 100"><use xlink:href="#cartoon-figure-grey"></use></svg>
+            <svg class="walking-figure" viewBox="0 0 100 100"><use xlink:href="#cartoon-figure-grey"></use></svg>
+            <svg class="walking-figure" viewBox="0 0 100 100"><use xlink:href="#cartoon-figure-grey"></use></svg>
+            <svg class="walking-figure" viewBox="0 0 100 100"><use xlink:href="#cartoon-figure-grey"></use></svg>
+        </div>
+
+        <!-- Scattered characters (decorative) -->
+        <svg class="scattered-character" viewBox="0 0 100 100"><use xlink:href="#cartoon-figure-grey"></use></svg>
+        <svg class="scattered-character" viewBox="0 0 100 100"><use xlink:href="#cartoon-figure-grey"></use></svg>
+        <svg class="scattered-character" viewBox="0 0 100 100"><use xlink:href="#cartoon-figure-grey"></use></svg>
+        <svg class="scattered-character" viewBox="0 0 100 100"><use xlink:href="#cartoon-figure-grey"></use></svg>
+        <svg class="scattered-character" viewBox="0 0 100 100"><use xlink:href="#cartoon-figure-grey"></use></svg>
+        <svg class="scattered-character" viewBox="0 0 100 100"><use xlink:href="#cartoon-figure-grey"></use></svg>
+
+        <!-- Dashed lines for flow indication -->
+        <div class="flow-line flow-line-zhongzhuan-to-gaokao"></div>
+        <div class="flow-line flow-line-gaokao-to-bachelor"></div>
+        <div class="flow-line flow-line-gaokao-to-zhuanke"></div>
+        <div class="flow-line flow-line-zhongzhuan-to-zhigao"></div>
+        <div class="flow-line flow-line-zhongzhuan-to-shehui"></div>
+
+    </div>
+
+    <script>
+        const levels = {
+            bachelor: { element: document.querySelector('.level-bachelor'), count: 0, max: 20 },
+            zhuanke: { element: document.querySelector('.level-zhuanke'), count: 0, max: 60 },
+            // Zhongzhuan is now the building, characters enter here first
+            zhongzhuan: { element: document.querySelector('.level-zhongzhuan .zhongzhuan-body'), count: 0, max: 80 }, 
+            zhigao: { element: document.querySelector('.level-zhigao'), count: 0, max: 120 },
+            shehui: { element: document.querySelector('.level-shehui'), count: 0, max: 150 }
+        };
+
+        const gaokaoLevel = { element: document.querySelector('.level-gaokao'), count: 0, max: 50 }; // New level for Gaokao
+
+        // Helper to get element's center coordinates relative to viewport
+        function getElementCenter(element) {
+            const rect = element.getBoundingClientRect();
+            return {
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2
+            };
+        }
+
+        const zhongzhuanDoor = document.querySelector('.zhongzhuan-door');
+        const userFlowButton = document.getElementById('user-flow-button');
+        
+        // Updated path definitions for smoother animations
+        const pathDefs = {
+            entryToZhongzhuan: () => {
+                const start = getElementCenter(document.querySelector('.walking-characters-bottom'));
+                start.y = window.innerHeight + 20;
+
+                const doorCenter = getElementCenter(zhongzhuanDoor);
+                const midDoorBottom = { x: doorCenter.x, y: doorCenter.y + zhongzhuanDoor.offsetHeight / 2 };
+                const midDoorTop = { x: doorCenter.x, y: doorCenter.y - zhongzhuanDoor.offsetHeight / 2 };
+
+                const zhongzhuanInside = {
+                    x: getElementCenter(levels.zhongzhuan.element).x,
+                    y: levels.zhongzhuan.element.getBoundingClientRect().bottom - levels.zhongzhuan.element.offsetHeight * 0.15
+                };
+
+                return [
+                    { x: start.x, y: start.y, duration: 1200, delay: 0 },
+                    { x: midDoorBottom.x, y: midDoorBottom.y, duration: 1000, delay: 0 },
+                    { x: midDoorTop.x, y: midDoorTop.y, duration: 600, delay: 0 },
+                    { x: zhongzhuanInside.x, y: zhongzhuanInside.y, duration: 800, delay: 0 }
+                ];
+            },
+            zhongzhuanToGaokao: () => {
+                const start = getElementCenter(levels.zhongzhuan.element);
+                const gaokaoTarget = getElementCenter(gaokaoLevel.element);
+                const middlePoint = {
+                    x: start.x,
+                    y: levels.zhongzhuan.element.getBoundingClientRect().top - 100
+                };
+                const controlPoint = {
+                    x: start.x + (gaokaoTarget.x - start.x) * 0.5,
+                    y: middlePoint.y - 50
+                };
+                return [
+                    { x: start.x, y: start.y, duration: 0, delay: 0 },
+                    { x: middlePoint.x, y: middlePoint.y, duration: 1000, delay: 0 },
+                    { x: controlPoint.x, y: controlPoint.y, duration: 800, delay: 0 },
+                    { x: gaokaoTarget.x, y: gaokaoTarget.y, duration: 1200, delay: 0 }
+                ];
+            },
+            gaokaoToBachelor: () => {
+                const start = getElementCenter(gaokaoLevel.element);
+                const bachelorTarget = getElementCenter(levels.bachelor.element);
+                const midPoint1 = {
+                    x: start.x - (start.x - bachelorTarget.x) * 0.3,
+                    y: start.y + (bachelorTarget.y - start.y) * 0.2
+                };
+                const midPoint2 = {
+                    x: start.x - (start.x - bachelorTarget.x) * 0.6,
+                    y: start.y + (bachelorTarget.y - start.y) * 0.4
+                };
+                return [
+                    { x: start.x, y: start.y, duration: 0, delay: 0 },
+                    { x: midPoint1.x, y: midPoint1.y, duration: 600, delay: 0 },
+                    { x: midPoint2.x, y: midPoint2.y, duration: 600, delay: 0 },
+                    { x: bachelorTarget.x, y: bachelorTarget.y, duration: 600, delay: 0 }
+                ];
+            },
+            gaokaoToZhuanke: () => {
+                const start = getElementCenter(gaokaoLevel.element);
+                const zhuankeTarget = getElementCenter(levels.zhuanke.element);
+                const midPoint1 = {
+                    x: start.x + (zhuankeTarget.x - start.x) * 0.3,
+                    y: start.y + (zhuankeTarget.y - start.y) * 0.2
+                };
+                const midPoint2 = {
+                    x: start.x + (zhuankeTarget.x - start.x) * 0.6,
+                    y: start.y + (zhuankeTarget.y - start.y) * 0.4
+                };
+                return [
+                    { x: start.x, y: start.y, duration: 0, delay: 0 },
+                    { x: midPoint1.x, y: midPoint1.y, duration: 600, delay: 0 },
+                    { x: midPoint2.x, y: midPoint2.y, duration: 600, delay: 0 },
+                    { x: zhuankeTarget.x, y: zhuankeTarget.y, duration: 600, delay: 0 }
+                ];
+            },
+            zhongzhuanToZhigao: () => {
+                const start = getElementCenter(levels.zhongzhuan.element); 
+                const zhigaoTarget = getElementCenter(levels.zhigao.element);
+                // Path from zhongzhuan to zhigao (bottom-left)
+                const midPoint = { x: start.x - 180, y: start.y + 80 }; // Arc downwards and left, increased offset
+                return [
+                    { x: start.x, y: start.y, duration: 0, delay: 0 },
+                    { x: midPoint.x, y: midPoint.y, duration: 800, delay: 0 },
+                    { x: zhigaoTarget.x, y: zhigaoTarget.y, duration: 1000, delay: 0 }
+                ];
+            },
+            zhongzhuanToShehui: () => {
+                const start = getElementCenter(levels.zhongzhuan.element); 
+                const shehuiTarget = getElementCenter(levels.shehui.element);
+                // Path from zhongzhuan to shehui (bottom-right)
+                const midPoint = { x: start.x + 180, y: start.y + 80 }; // Arc downwards and right, increased offset
+                return [
+                    { x: start.x, y: start.y, duration: 0, delay: 0 },
+                    { x: midPoint.x, y: midPoint.y, duration: 800, delay: 0 },
+                    { x: shehuiTarget.x, y: shehuiTarget.y, duration: 1000, delay: 0 }
+                ];
+            }
+        };
+
+        const avatarColors = ["#6a5acd", "#ffd700", "#4CAF50", "#FF5722", "#9C27B0"]; // Define some vibrant colors
+
+        function createFlowingItem(isUserFlow = false) { 
+            const itemContainer = document.createElement('div'); 
+            itemContainer.classList.add('flowing-figure'); 
+
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            const use = document.createElementNS("http://www.w3.org/1999/xlink", "xlink:href", isUserFlow ? "#cartoon-figure-blue" : "#cartoon-figure-grey"); 
+            svg.appendChild(use);
+            itemContainer.appendChild(svg);
+            document.body.appendChild(itemContainer); 
+
+            let currentPath = [];
+            let currentPathIndex = 0;
+            let targetLevelForAvatar = null; // Store the final target level for avatar placement
+
+            // Initial flow to Zhongzhuan building
+            currentPath = pathDefs.entryToZhongzhuan();
+
+            const animateItem = () => {
+                if (currentPathIndex < currentPath.length) {
+                    const targetPoint = currentPath[currentPathIndex];
+                    const { x: targetX, y: targetY, duration, delay } = targetPoint;
+
+                    // Set initial position (if first point) or current position (for subsequent points)
+                    if (currentPathIndex === 0) {
+                        itemContainer.style.left = `${targetX}px`;
+                        itemContainer.style.top = `${targetY}px`;
+                        itemContainer.style.transform = `translate(-50%, -50%)`; 
+                        itemContainer.style.opacity = '0'; 
+                    } else {
+                        // For subsequent points, set the target position directly
+                        itemContainer.style.left = `${targetX}px`;
+                        itemContainer.style.top = `${targetY}px`;
+                    }
+
+                    itemContainer.style.transition = `left ${duration / 1000}s linear, top ${duration / 1000}s linear, opacity 0.5s ease-in`;
+                    itemContainer.style.opacity = '1';
+
+                    setTimeout(() => {
+                        itemContainer.addEventListener('transitionend', function handler(event) {
+                            // Ensure we only react to `left` or `top` transitions to avoid spurious calls
+                            if (event.propertyName === 'left' || event.propertyName === 'top') {
+                                itemContainer.removeEventListener('transitionend', handler);
+                                currentPathIndex++;
+
+                                if (currentPathIndex < currentPath.length) {
+                                    animateItem(); 
+                                } else {
+                                    // Path segment finished, determine next stage
+                                    if (currentPath === pathDefs.entryToZhongzhuan()) {
+                                        // After entering Zhongzhuan
+                                        const random = Math.random();
+                                        // Ratios based on real Chinese data (adjusted for visual effect)
+                                        // 本科 5%, 专科 30%, 中专 15%, 职高技校 20%, 社会就业 30%
+                                        // Note: Here we are only making choices for Gaokao (-> Bachelor/Zhuanke) vs Zhigao vs Shehui from Zhongzhuan.
+                                        // The 15% for Zhongzhuan (中专) was interpreted as staying in Zhongzhuan for a while or being the starting point.
+                                        // Now it's the building, so the exits are more important.
+                                        if (random < 0.5) { // 50% go to Gaokao (then split between Bachelor/Zhuanke)
+                                            currentPath = pathDefs.zhongzhuanToGaokao();
+                                            currentPathIndex = 0;
+                                            animateItem();
+                                        } else if (random < 0.7) { // 20% go to Zhigao (0.5 + 0.2 = 0.7)
+                                            currentPath = pathDefs.zhongzhuanToZhigao();
+                                            currentPathIndex = 0;
+                                            targetLevelForAvatar = levels.zhigao;
+                                            animateItem();
+                                        } else { // 30% go to Shehui (0.7 + 0.3 = 1.0)
+                                            currentPath = pathDefs.zhongzhuanToShehui();
+                                            currentPathIndex = 0;
+                                            targetLevelForAvatar = levels.shehui;
+                                            animateItem();
+                                        }
+                                    } else if (currentPath === pathDefs.zhongzhuanToGaokao()) {
+                                        // After Gaokao
+                                        const random = Math.random();
+                                        if (random < 0.2) { // 20% Bachelor (from Gaokao group, corresponding to overall 5%)
+                                            currentPath = pathDefs.gaokaoToBachelor();
+                                            currentPathIndex = 0;
+                                            targetLevelForAvatar = levels.bachelor;
+                                            animateItem();
+                                        } else { // 80% Zhuanke (from Gaokao group, corresponding to overall 30%)
+                                            currentPath = pathDefs.gaokaoToZhuanke();
+                                            currentPathIndex = 0;
+                                            targetLevelForAvatar = levels.zhuanke;
+                                            animateItem();
+                                        }
+                                    } else {
+                                        // Final destination reached, distribute avatar
+                                        itemContainer.remove(); 
+                                        if (targetLevelForAvatar) {
+                                            distributeAvatar(targetLevelForAvatar);
+                                        } else {
+                                            // Fallback: if somehow no target level was set, put into zhongzhuan body temporarily
+                                            distributeAvatar(levels.zhongzhuan);
+                                        }
+                                    }
+                                }
+                            }
+                        }); 
+                    }, delay); 
+                }
+            };
+
+            // Start the animation
+            animateItem();
+        }
+
+        function distributeAvatar(targetLevel) {
+            if (targetLevel.count < targetLevel.max) {
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.classList.add('avatar-svg');
+                const use = document.createElementNS("http://www.w3.org/1999/xlink", "xlink:href", "#avatar");
+                svg.appendChild(use);
+
+                const randomColor = avatarColors[Math.floor(Math.random() * avatarColors.length)];
+                svg.querySelector('.avatar-body-color').setAttribute('fill', randomColor);
+
+                // Add a small random rotation for visual interest
+                const rotation = Math.random() * 10 - 5;
+                svg.style.transform = `rotate(${rotation}deg)`;
+
+                targetLevel.element.appendChild(svg);
+                setTimeout(() => {
+                    svg.classList.add('show');
+                }, 10);
+
+                targetLevel.count++;
+            }
+        }
+
+        // Updated interval and distribution ratios based on real data
+        // Assuming: 本科 5%, 专科 30%, 职高技校 20%, 社会就业 30%
+        // (中专 15% is now the entry point, so we distribute from there)
+        setInterval(() => createFlowingItem(false), 600); // Slightly faster interval
+
+        userFlowButton.addEventListener('click', () => {
+            createFlowingItem(true); 
+        });
+
+    </script>
+</body>
+</html> 
